@@ -4,6 +4,7 @@ import com.dao.EmployeeDao;
 import com.dao.LeaveRequestDao;
 import com.entity.Leave;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -49,12 +50,18 @@ public class LeaveController {
    @GetMapping("/manageLeaveRequest")
    public String manageLeave(Model model){
         List<Leave> leave = leaveDao.getAllLeaveRequest();
-
-       for (Leave l:leave) {
-           System.out.println(l.getEmployee().getEmployeeName());
-       }
         model.addAttribute("leaveRequests", leave);
         return "manageleave";
    }
+
+   @PostMapping("/leave/updateStatus")
+   public String updateStatus(@RequestParam("leaveId") int leaveId,
+                              @RequestParam("status") String status){
+
+       leaveDao.updateLeaveStatus(leaveId,status);
+
+       return "redirect:/manageLeaveRequest";
+   }
+
 
 }

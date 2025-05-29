@@ -4,6 +4,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
+
 public class Leave {
 
     private int leaveId;
@@ -63,5 +64,17 @@ public class Leave {
 
     public void setEmployee(Employee employee) {
         this.employee = employee;
+    }
+
+    @Override
+    public String toString() {
+        return "Leave{" +
+                "leaveId=" + leaveId +
+                ", startDate=" + startDate +
+                ", endDate=" + endDate +
+                ", reason='" + reason + '\'' +
+                ", employee=" + employee +
+                ", status='" + status + '\'' +
+                '}';
     }
 }

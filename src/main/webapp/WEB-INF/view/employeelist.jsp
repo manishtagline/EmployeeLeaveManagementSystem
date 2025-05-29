@@ -132,7 +132,7 @@
 
 
             <div class="mb-4 d-flex justify-content-center">
-                <a href="index.jsp" class="btn btn-warning px-4 py-2 fw-semibold rounded-pill shadow-sm">
+                <a href="/EmployeeLeaveManagementSystem_war/" class="btn btn-warning px-4 py-2 fw-semibold rounded-pill shadow-sm">
                     ← Back to Home
                 </a>
             </div>

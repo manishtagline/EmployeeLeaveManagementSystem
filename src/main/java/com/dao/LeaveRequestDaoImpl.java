@@ -41,8 +41,8 @@ public class LeaveRequestDaoImpl  implements LeaveRequestDao{
             // Map Leave object
             Leave leave = new Leave();
             leave.setLeaveId(rs.getInt("leaveId"));
-            leave.setStartDate(rs.getTimestamp("startDate"));
-            leave.setEndDate(rs.getTimestamp("endDate"));
+            leave.setStartDate(new java.sql.Date(rs.getTimestamp("startDate").getTime()));
+            leave.setEndDate(new java.sql.Date(rs.getTimestamp("endDate").getTime()));
             leave.setReason(rs.getString("reason"));
             leave.setStatus(rs.getString("status"));
 
@@ -61,39 +61,59 @@ public class LeaveRequestDaoImpl  implements LeaveRequestDao{
         });
     }
 
-    @Override
-    public void updateLeaveStatus(int leaveRequestId, String status) {
-        Leave leave = jdbcTemplate.queryForObject("SELECT * FROM leave_requests WHERE leaveId = ?",
-                    new BeanPropertyRowMapper<>(Leave.class),
+        @Override
+        public void updateLeaveStatus(int leaveRequestId, String status) {
+            Leave leave = getLeaveById(leaveRequestId);
+
+            if(status.equalsIgnoreCase("APPROVED")){
+                LocalDate localStart = leave.getStartDate().toInstant()
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDate();
+
+                LocalDate localEnd = leave.getEndDate().toInstant()
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDate();
+
+                long days = localEnd.toEpochDay() - localStart.toEpochDay() + 1;
+
+                jdbcTemplate.update("UPDATE Employee SET leaveBalance = leaveBalance - ? WHERE employeeId = ? ",
+                            days,
+                            leave.getEmployee().getEmployeeId()
+                        );
+
+            }
+            jdbcTemplate.update(
+                    "UPDATE leave_requests SET status = ? WHERE leaveId = ?",
+                    status,
                     leaveRequestId
-                );
-
-        if(status.equalsIgnoreCase("APPROVED")){
-            LocalDate localStart = leave.getStartDate().toInstant()
-                    .atZone(ZoneId.systemDefault())
-                    .toLocalDate();
-
-            LocalDate localEnd = leave.getEndDate().toInstant()
-                    .atZone(ZoneId.systemDefault())
-                    .toLocalDate();
-
-            long days = localEnd.toEpochDay() - localStart.toEpochDay() + 1;
-
-            jdbcTemplate.update("UPDATE Employee SET leaveBalance = leaveBalance - ? WHERE employeeId = ? ",
-                        days,
-                        leave.getEmployee().getEmployeeId()
-                    );
+            );
         }
-        jdbcTemplate.update(
-                "UPDATE leave_requests SET status = ? WHERE id = ?",
-                status,
-                leaveRequestId
-        );
-    }
 
     @Override
     public Leave getLeaveById(int leaveId) {
-        String query = "SELECT * FORM leave_requests WHERE leaveId = ?";
-        return jdbcTemplate.queryForObject(query, new BeanPropertyRowMapper<>(Leave.class), leaveId);
+        String sql = "SELECT lr.leaveId, lr.startDate, lr.endDate, lr.reason, lr.status, " +
+                "e.employeeId, e.employeeName, e.email, e.designation, e.leaveBalance " +
+                "FROM leave_requests lr JOIN employee e ON lr.employee_id = e.employeeId " +
+                "WHERE lr.leaveId = ?";
+        return jdbcTemplate.queryForObject(sql, new Object[]{leaveId}, (rs, rowNum) -> {
+            Leave leave = new Leave();
+            leave.setLeaveId(rs.getInt("leaveId"));
+            leave.setStartDate(rs.getDate("startDate"));
+            leave.setEndDate(rs.getDate("endDate"));
+            leave.setReason(rs.getString("reason"));
+            leave.setStatus(rs.getString("status"));
+
+            Employee emp = new Employee();
+            emp.setEmployeeId(rs.getInt("employeeId"));
+            emp.setEmployeeName(rs.getString("employeeName"));
+            emp.setEmail(rs.getString("email"));
+            emp.setDesignation(rs.getString("designation"));
+            emp.setLeaveBalance(rs.getInt("leaveBalance"));
+
+            System.out.println(emp.getEmployeeName()+" "+emp.getEmail());
+
+            leave.setEmployee(emp);
+            return leave;
+        });
     }
 }

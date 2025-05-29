@@ -164,6 +164,12 @@
                 </tbody>
             </table>
 
+            <div class="mb-4 d-flex justify-content-center">
+                <a href="index.jsp" class="btn btn-warning px-4 py-2 fw-semibold rounded-pill shadow-sm">
+                    ← Back to Home
+                </a>
+            </div>
+
             <div class="footer">
                 &copy; 2025 Tagline Infotech. All Rights Reserved.
             </div>

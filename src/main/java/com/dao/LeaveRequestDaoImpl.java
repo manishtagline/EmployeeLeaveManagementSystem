@@ -41,8 +41,8 @@ public class LeaveRequestDaoImpl  implements LeaveRequestDao{
             // Map Leave object
             Leave leave = new Leave();
             leave.setLeaveId(rs.getInt("leaveId"));
-            leave.setStartDate(new java.sql.Date(rs.getTimestamp("startDate").getTime()));
-            leave.setEndDate(new java.sql.Date(rs.getTimestamp("endDate").getTime()));
+            leave.setStartDate(rs.getTimestamp("startDate"));
+            leave.setEndDate(rs.getTimestamp("endDate"));
             leave.setReason(rs.getString("reason"));
             leave.setStatus(rs.getString("status"));
 
@@ -98,8 +98,8 @@ public class LeaveRequestDaoImpl  implements LeaveRequestDao{
         return jdbcTemplate.queryForObject(sql, new Object[]{leaveId}, (rs, rowNum) -> {
             Leave leave = new Leave();
             leave.setLeaveId(rs.getInt("leaveId"));
-            leave.setStartDate(rs.getDate("startDate"));
-            leave.setEndDate(rs.getDate("endDate"));
+            leave.setStartDate(rs.getTimestamp("startDate"));
+            leave.setEndDate(rs.getTimestamp("endDate"));
             leave.setReason(rs.getString("reason"));
             leave.setStatus(rs.getString("status"));
 
@@ -109,8 +109,6 @@ public class LeaveRequestDaoImpl  implements LeaveRequestDao{
             emp.setEmail(rs.getString("email"));
             emp.setDesignation(rs.getString("designation"));
             emp.setLeaveBalance(rs.getInt("leaveBalance"));
-
-            System.out.println(emp.getEmployeeName()+" "+emp.getEmail());
 
             leave.setEmployee(emp);
             return leave;
